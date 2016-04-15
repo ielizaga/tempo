@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <title>tempo | {{ email }}</title>
+    <link rel="stylesheet" type="text/css" href="static/semantic/dist/semantic.min.css">
+    <link rel=stylesheet type=text/css href="static/style.css">
+    <script src='static/jquery-1.12.3.min.js'></script>
+    <script src='static/chart.min.js'></script>
+    <script src="static/semantic/dist/semantic.min.js"></script>
+</head>
+<body>
+<div class="ui container">
+<h1>{{email}}</h1>
+<div id="chart-area">
+    <canvas id="chart" width="600" height="400"></canvas>
+</div>
+<script>
+   var pieData = [
+            {% for item,label,colors in set %}
+                {
+                    value: {{item}},
+                    label: "{{label}}",
+                    color : "{{colors}}"
+                },
+            {% endfor %}
+         ];
+
+   // Get the context of the canvas element we want to select
+   var ctx = document.getElementById("chart").getContext("2d");
+
+
+   // draw pie chart
+   new Chart(ctx).Pie(pieData, {
+        tooltipTemplate: " <%= label %> "
+   });
+</script>
+</body>
+</html>
