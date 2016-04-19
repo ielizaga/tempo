@@ -15,7 +15,7 @@ def get_url(url):
 
 def get_tickets(userid):
     # Format http request
-    url = 'https://discuss.zendesk.com/api/v2/users/%s/tickets/assigned.json' % userid
+    url = 'https://%s/api/v2/users/%s/tickets/assigned.json' % (os.getenv('ZDADDRESS'), userid)
     data = get_url(url)
     tickets = data['tickets']
 
@@ -25,12 +25,11 @@ def get_tickets(userid):
         if time.strftime("%Y-%m-%d") in ticket['updated_at']:
             updated_tickets.append(ticket)
 
-    print "### User %s has updated %s tickets today" % (userid, len(updated_tickets))
     return updated_tickets
 
 
 def get_time_spent(userid, ticketid):
-    url = 'https://discuss.zendesk.com/api/v2/tickets/%s/audits.json' % ticketid
+    url = 'https://%s/api/v2/tickets/%s/audits.json' % (os.getenv('ZDADDRESS'), ticketid)
     data = get_url(url)
     audits = data['audits']
 
@@ -50,16 +49,16 @@ def get_total_time_spent(userid):
     tickets = get_tickets(userid)
     for ticket in tickets:
         ts = get_time_spent(userid, ticket['id'])
-        print "ts %s" % ts
+        print "USER:%s TICKET:%s TS:%s" % (userid,ticket['id'],ts)
         total += ts
 
-    print "### User %s has logged %s seconds today" % (userid,total)
+    print "USER:%s TOTALTS:%s" % (userid, total)
     return total
 
 
 def get_userid(email):
     # Format http request
-    url = 'https://discuss.zendesk.com/api/v2/users/search.json?query=%s' % email
+    url = 'https://%s/api/v2/users/search.json?query=%s' % (os.getenv('ZDADDRESS'), email)
     data = get_url(url)
     users = data['users']
 
@@ -70,7 +69,7 @@ def get_userid(email):
 
 def get_email(userid):
     # Format http request
-    url = 'https://discuss.zendesk.com/api/v2/users/%s.json' % userid
+    url = 'https://%s/api/v2/users/%s.json' % (os.getenv('ZDADDRESS'), userid)
     data = get_url(url)
     users = data['users']
 
