@@ -8,7 +8,7 @@ def get_url(url):
     # Check for HTTP codes other than 200
     if response.status_code != 200:
         print('Status:', response.status_code, 'Problem with the request . Exiting.')
-        exit()
+        raise Exception()
 
     return response.json()
 

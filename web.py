@@ -11,27 +11,34 @@ MAX_TIME_LOGGED = 28800
 
 @app.route('/')
 def chart():
-    if request.args.get('userid'):
-        userid = request.args.get('userid')
-        email = zd_helper.get_email(userid)
-    elif request.args.get('email'):
+
+    if request.args.get('email'):
         email = request.args.get('email')
         userid = zd_helper.get_userid(email)
     else:
-        return 'You need to specify a userid or email'
+        return render_template('error.html', code=1, message="Please provide a valid email.")
 
-    total_ts = zd_helper.get_total_time_spent(userid)
-    remaining_ts = MAX_TIME_LOGGED-total_ts
-    m, s = divmod(total_ts, 60)
-    h, m = divmod(m, 60)
-    m1, s1 = divmod(remaining_ts, 60)
-    h1, m1 = divmod(m1, 60)
+    try:
+        time = zd_helper.get_total_time_spent(userid)
+    except:
+        return render_template('error.html', code=2)
 
-    labels = ['%sh %sm %ss logged' % (h, m, s),'%sh %sm %ss remaining' % (h1, m1, s1)]
-    colors = ["#58FA82", "#FE2E2E"]
-    values = [total_ts, remaining_ts]
+    return render_template('layout.html', ts=time, email=email)
 
-    return render_template('layout.html', set=zip(values, labels, colors), email=email)
+
+@app.route('/<email>')
+def time(email):
+    try:
+        userid = zd_helper.get_userid(email)
+        time = zd_helper.get_total_time_spent(userid)
+    except IndexError:
+        return render_template('error.html', code=2, message="User not found in Zendesk. If you think this is not "
+                                                             "right please report this issue to ielizaga@pivotal.io")
+    except Exception:
+        return render_template('error.html', code=3, message="Could not access one or more tickets. Please report this"
+                                                             " issue to ielizaga@pivotal.io")
+
+    return render_template('layout.html', ts=time, email=email)
 
 
 if __name__ == '__main__':

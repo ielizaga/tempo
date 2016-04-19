@@ -1,18 +1,8 @@
-
-
-.ui.container > h1 {
-      font-size: 3em;
-      text-align: center;
-      font-weight: normal;
-    }
-
-body > .ui.container {
-      margin-top: 3em;
-    }
-
-#chart-area {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+h1 {
+    font-size: 3rem !important;
+    padding-bottom: 25px !important;
 }
+
+body > .grid {
+      height: 100%;
+    }

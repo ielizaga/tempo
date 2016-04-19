@@ -1,41 +1,41 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8"/>
-    <title>tempo | {{ email }}</title>
-    <!-- The below file doesn't exists -->
-    <link rel="stylesheet" type="text/css" href="static/semantic/dist/semantic.min.css">
-    <!-- Changing the below line to be dynamic -->
-    <link rel=stylesheet type=text/css href="{{url_for('static', filename='style.css')}}">
-    <script src='static/jquery-1.12.3.min.js'></script>
-    <script src='static/chart.min.js'></script>
-    <script src="static/semantic/dist/semantic.min.js"></script>
-</head>
+{% extends "header.html" %}
+{% block body %}
 <body>
-<div class="ui container">
-<h1>{{email}}</h1>
-<div id="chart-area">
-    <canvas id="chart" width="600" height="400"></canvas>
+<div class="ui middle aligned center aligned grid">
+    <div class="column">
+
+            <h1 class="ui black header">{{email}}</h1>
+            <canvas id="chart" width="400" height="400"></canvas>
+
+    </div>
 </div>
 <script>
+function toTimeString(seconds) {
+  return (new Date(seconds * 1000)).toUTCString().match(/(\d\d:\d\d:\d\d)/)[0];
+}
    var pieData = [
-            {% for item,label,colors in set %}
                 {
-                    value: {{item}},
-                    label: "{{label}}",
-                    color : "{{colors}}"
+                    value: {{ts}},
+                    label: toTimeString({{ts}})+" logged",
+                    color : "#00786E"
                 },
-            {% endfor %}
+                {
+                    value: 28800-{{ts}},
+                    label: toTimeString(28800-{{ts}})+" remaining",
+                    color : "#D14747"
+                }
          ];
 
    // Get the context of the canvas element we want to select
    var ctx = document.getElementById("chart").getContext("2d");
 
-
    // draw pie chart
    new Chart(ctx).Pie(pieData, {
-        tooltipTemplate: " <%= label %> "
+        tooltipTemplate: " <%= label %> ",
+        segmentStrokeColor : "#000",
    });
+
 </script>
 </body>
 </html>
+{% endblock %}
