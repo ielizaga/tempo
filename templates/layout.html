@@ -3,8 +3,10 @@
 <head>
     <meta charset="utf-8"/>
     <title>tempo | {{ email }}</title>
+    <!-- The below file doesn't exists -->
     <link rel="stylesheet" type="text/css" href="static/semantic/dist/semantic.min.css">
-    <link rel=stylesheet type=text/css href="static/style.css">
+    <!-- Changing the below line to be dynamic -->
+    <link rel=stylesheet type=text/css href="{{url_for('static', filename='style.css')}}">
     <script src='static/jquery-1.12.3.min.js'></script>
     <script src='static/chart.min.js'></script>
     <script src="static/semantic/dist/semantic.min.js"></script>
