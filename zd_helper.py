@@ -1,13 +1,14 @@
 import requests
 import os
 import time
-
+import datetime
+import dateutil.parser
 
 def get_url(url):
     response = requests.get(url, auth=(os.getenv('ZDUSERNAME'), os.getenv('ZDPASSWORD')))
     # Check for HTTP codes other than 200
     if response.status_code != 200:
-        print('Status:', response.status_code, 'Problem with the request . Exiting.')
+        print(url, ' Status:', response.status_code, 'Problem with the request . Exiting.')
         raise Exception()
 
     return response.json()
@@ -19,10 +20,16 @@ def get_tickets(userid):
     data = get_url(url)
     tickets = data['tickets']
 
+    now = dateutil.parser.parse((datetime.datetime.utcnow()).isoformat("T") + "Z")
+
     updated_tickets = []
     for ticket in tickets:
-        # Only get tickets updated today
-        if time.strftime("%Y-%m-%d") in ticket['updated_at']:
+
+        updated_at = dateutil.parser.parse(ticket['updated_at'])
+        time_diff = int((now - updated_at).total_seconds() / 60 / 60)
+
+        # Only get tickets updated within the last 12 hours
+        if time_diff < 13:
             updated_tickets.append(ticket)
 
     return updated_tickets
@@ -34,9 +41,13 @@ def get_time_spent(userid, ticketid):
     audits = data['audits']
 
     total = 0
+    now = dateutil.parser.parse((datetime.datetime.utcnow()).isoformat("T") + "Z")
 
     for audit in audits:
-        if time.strftime("%Y-%m-%d") in audit['created_at'] and audit['author_id'] == int(userid):
+        created_at = dateutil.parser.parse(audit['created_at'])
+        time_diff = int((now - created_at).total_seconds() / 60 / 60)
+
+        if time_diff < 13 and audit['author_id'] == int(userid):
                 for event in audit['events']:
                     if 'field_name' in event and event['field_name'] == '23991343':
                         total += int(event['value'])
