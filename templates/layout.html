@@ -3,39 +3,70 @@
 <body>
 <div class="ui middle aligned center aligned grid">
     <div class="column">
+            <h1 id="email" class="ui black header">{{email}}</h1>
+            <div id="loader" class="ui indeterminate text large loader">Fetching data for {{email}}</div>
 
-            <h1 class="ui black header">{{email}}</h1>
-            <canvas id="chart" width="400" height="400"></canvas>
+                <div class="middle aligned six wide column">
+                    <canvas id="chart" width="400" height="400"></canvas>
+                </div>
 
+            </div>
     </div>
 </div>
-<script>
-function toTimeString(seconds) {
-  return (new Date(seconds * 1000)).toUTCString().match(/(\d\d:\d\d:\d\d)/)[0];
-}
-   var pieData = [
-                {
-                    value: {{ts}},
-                    label: toTimeString({{ts}})+" logged",
-                    color : "#00786E"
-                },
-                {
-                    value: 28800-{{ts}},
-                    label: toTimeString(28800-{{ts}})+" remaining",
-                    color : "#D14747"
-                }
-         ];
+<footer>
+    <script type="text/javascript" src="{{ url_for('static',filename='lib/chart.min.js')}}"></script>
+    <script type="text/javascript">
+    $(function() {
 
-   // Get the context of the canvas element we want to select
-   var ctx = document.getElementById("chart").getContext("2d");
+        /**
+         * Transform time in seconds to hh:mm:ss format.
+         * @param: {Integer} seconds
+         * @return: {String} Returns the time in hh:mm:ss format
+         **/
+        function toTimeString(seconds) {
+          return (new Date(seconds * 1000)).toUTCString().match(/(\d\d:\d\d:\d\d)/)[0];
+        }
 
-   // draw pie chart
-   new Chart(ctx).Pie(pieData, {
-        tooltipTemplate: " <%= label %> ",
-        segmentStrokeColor : "#000",
-   });
+        /**
+         * Retrieves the total time spent from the controller variable ts. Formats the data object that will be passed to
+         * the Chart.js draw function.
+         * @param: {Integer} seconds The time spent in tickets in seconds
+         * @return: {Object} Returns an object with the pie chart data
+         **/
+        function getPieData(seconds) {
+            var pieData = [
+                { value: seconds, label: toTimeString(seconds)+" logged", color : "#00786E" },
+                { value: 28800-seconds, label: toTimeString(28800-seconds)+" remaining", color : "#D14747" }
+            ];
 
-</script>
+            return pieData;
+        }
+
+        /**
+         * Draws the pie chart in the canvas element using Chart.js functions.
+         * @param: {Integer} seconds The time spent in tickets in seconds
+         **/
+        function drawPieChart(seconds) {
+            data = getPieData(seconds);
+            var ctx = document.getElementById("chart").getContext("2d");
+            new Chart(ctx).Pie(data, { tooltipTemplate: " <%= label %> ", segmentStrokeColor : "#000"});
+        }
+
+        var email = "{{email}}";
+
+        $('#email').hide();
+        $('#loader').addClass("active");
+
+        $.getJSON($SCRIPT_ROOT + '/_get_time_spent'
+            , { email: email }
+            , function(data) {
+                $('#loader').removeClass("active");
+                drawPieChart(data.time);
+                $('#email').transition('fly right');
+            });
+    });
+    </script>
+</footer>
 </body>
 </html>
 {% endblock %}

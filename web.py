@@ -17,17 +17,7 @@ def chart():
     else:
         return render_template('error.html', code=1, message="Please provide a valid email.")
 
-    try:
-        userid = zd_helper.get_userid(email)
-        time = zd_helper.get_total_time_spent(userid)
-    except IndexError:
-        return render_template('error.html', code=2, message="User not found in Zendesk. If you think this is not "
-                                                             "right please report this issue to ielizaga@pivotal.io")
-    except Exception:
-        return render_template('error.html', code=3, message="Could not access one or more tickets. Please report this"
-                                                             " issue to ielizaga@pivotal.io")
-
-    return render_template('layout.html', ts=time, email=email)
+    return render_template('layout.html', email=email)
 
 
 @app.route('/<email>')
