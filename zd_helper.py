@@ -49,6 +49,7 @@ def get_time_spent(userid, ticketid):
 
         if time_diff < 13 and audit['author_id'] == int(userid):
                 for event in audit['events']:
+                    # This field_name will depend on the Zendesk domain 
                     if 'field_name' in event and event['field_name'] == '23991343':
                         total += int(event['value'])
 
